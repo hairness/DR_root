@@ -1,0 +1,140 @@
+body {
+	background: #f0faf0;
+}
+
+div#wrapper {
+	background: #f0f0f0;
+	width: 980px;
+	
+	margin: 0 auto;
+}
+
+.ac_results { background: red; display: block; }
+
+div.object-info {
+	h2 {
+		font-size: 26pt;
+	}
+	table {
+		td {
+			padding-bottom: 12px;
+		}
+		td.title {
+			vertical-align: top;
+			padding-right: 8px;
+		}
+	}
+	p {
+		margin-top: 20px;
+		font-style: italic;
+	}
+}
+
+div.object-image {
+	width: 600px; // 642
+	background: white;
+	text-align: center;
+	padding: 21px;
+	
+}
+
+div.center {
+	margin: 0 82px; //auto;
+	background: yellow;
+	//text-align: center;
+}
+
+
+/* DIFFERENTIALE */
+.differential { 
+				width: 280px;
+				padding: 4px 10px; 
+				height: 20px;
+				float: left;  
+				border: 1px solid gray; 
+				margin-top: 4px; 
+				border-radius: 6px;
+				background: url(../images/diff-meter.png) no-repeat 0 -0px;
+}
+.diff-2 { background-position-x: -300px; }
+.diff-1 { background-position-x: -225px; }
+.diff0  { background-position-x: -151px; }
+.diff1  { background-position-x: -75px; }
+.diff2  { background-position-x: -1px; }
+
+div.navigation {
+	width: 100%;
+	float: left;
+	text-align: center;
+}
+
+
+/* BIG THUMBNAIL */
+
+div.thumbnail-big {
+	position: relative;
+	
+	width: 200px;
+	height: 145px;
+	
+	padding: 11px;
+	margin: 0 0 30px 30px;
+	float: left;
+	background: white;
+
+	div.image {
+		position: absolute;
+		top: 11px;
+		left: 11px;
+	
+		width: 200px;
+		height: 145px;
+		background: green;
+	}
+	
+	div.overlay {
+		position: absolute;
+		top: 11px;
+		left: 11px;		
+		padding: 11px;
+		
+		background: rgba(255,255,255,0.8);
+	
+		width: 178px;
+		height: 123px;
+		
+		text-align: center;
+		
+		h2 {
+			
+		}
+		
+		span {
+			display: block;
+		}
+		
+		div.menu {
+			position: absolute;
+			bottom: 11px;
+			width: 178px;
+			
+			ul {
+				width: 96px;
+				margin: 0 auto;
+			}
+			
+			li {
+				width: 32px;
+				height: 32px;
+				float: left;
+			}
+		}
+	}
+}
+
+
+/* DIRTY LITTLE HELPERS */
+.clearfix:after{content:".";display:block;height:0;font-size:0;clear:both;visibility:hidden;}
+.clearfix{display:inline-block;}
+* html .clearfix{height:1px;}
+.clearfix{display:block;}

@@ -1,0 +1,284 @@
+<?php 
+		/* LOAD SCRIPTS */
+		
+		function dr_archive_scripts(){
+			wp_enqueue_script('jquery-ui-dialog');
+		}
+		add_action('wp_enqueue_scripts', 'dr_archive_scripts');
+		
+
+get_header();
+
+?>
+
+<?php
+		$post_type_label = $wp_query->queried_object->labels->name;
+		$is_paged = $wp_query->is_paged;
+		$page_no = $wp_query->query_vars['paged'];
+
+		$breadcrumb = $post_type_label . ' > ' . __('All');
+		$breadcrumb.= (!empty($is_paged)) ? " > Page $page_no" : '';
+?>
+
+<div class="breadcrumb">
+	<h2><?php echo $breadcrumb; ?></h2>
+</div>
+
+<div class="thumbnails grid9 first" style="background: yellow;">
+	
+	<?php
+		$current_thumb = 0;
+		while( have_posts() ) : the_post();
+			get_template_part('thumb', 'big');
+			$current_thumb++;	
+		endwhile;
+	?>
+	
+	<?php wp_paginate(); ?>
+	
+</div>	
+	
+<div class="grid3">
+
+	<form id="objects-query">
+		<input type="submit" name="query" value="Query">
+	</form>
+	
+	<script type="text/javascript" charset="utf-8">
+	jQuery(document).ready(function(){
+		
+		jQuery('form#objects-query').submit(function(){
+			
+			jQuery.post(
+			    dr_ajax.ajaxurl,
+			    {
+			        action : 'dr_ajax_objects_query',
+			    },
+			    function( response ) {
+			        if( response.success ){
+			        	cluster_dom.find('input#object_ids').val( response.object_ids );
+			        	check_cluster_for_objectid_and_style( cluster_dom, new_object_id );
+			        }
+			    }
+			);
+			
+			return false;
+		});
+		
+		jQuery('#.wp-paginate a').live('click', function(e){
+
+			var link = jQuery(this).attr('href');
+			
+			jQuery('#query-results').fadeOut(500)
+									.load(link + ' #query-results', function(){ 
+																				jQuery('#query-results').fadeIn(500); 
+																			   }
+									);		
+			
+			return false;
+		});
+	
+	});
+	</script>
+
+	<?php dynamic_sidebar('DR Objects Index'); ?>
+</div>
+
+<div id="user-cluster-modal" style="background: white;">
+
+	<style>
+	
+		li { border-bottom: 2px solid green; }
+		
+		li.includes-object { background: #f000c3; }
+	
+	</style>
+	
+	<input type="hidden" name="object_id" value="" id="object_id">
+
+	<form id="cluster-create" method="post">
+		<input type="text" name="new_cluster_title" id="new_cluster_title" value="New Cluster title">
+		<!-- <input type="submit" id="create-and-append" value="Create"> -->	
+	</form>
+
+	<ul>
+	
+		<?php
+		
+			$current_user_id = get_current_user_id();
+			
+			$args = array(
+							'author' => $current_user_id,
+							'post_type' => 'dr_cluster',
+							'post_status' => array('draft'),
+							'orderby' => 'date'
+			);	
+			
+			// The Query
+			$user_cluster = new WP_Query($args);
+		
+			// The Loop
+			while ( $user_cluster->have_posts() ) : $user_cluster->the_post();
+				
+				$cluster_id = get_the_ID();
+				$included_objects = get_post_custom_values('included-object', $cluster_id);
+				$object_ids = (sizeof($included_objects)) > 0 ? implode($included_objects, ',') : '';
+												
+				echo "<li id='$cluster_id' class='user-cluster'>";
+				echo "<input type='hidden' name='cluster-$cluster_id-objects' value='$object_ids' id='object_ids'>";
+				echo '<h3>'; the_title(); echo "</h3>";
+				echo '<span>'.sizeof($included_objects).'</span> included objects.';
+				echo '<a href="#affect">include object</a>';
+				echo '</li>';
+
+			endwhile;
+			
+			// Reset Post Data
+			wp_reset_postdata();
+		
+		?>
+	
+	</ul>
+
+</div>
+
+<script>
+
+	jQuery(document).ready( function(){
+	
+		/* HELPER FUNCTIONS */
+		
+		function check_cluster_for_objectid_and_style(cluster_dom, new_object_id){
+			
+			//check for already included objects
+			var included_object_ids = cluster_dom.find('input#object_ids').val().split(',')
+			
+			if( jQuery.inArray(new_object_id, included_object_ids) > -1 ){
+				cluster_dom.addClass('includes-object');
+				cluster_dom.find('a').text('Remove Object');
+			} 
+			else {
+				cluster_dom.removeClass('includes-object');
+				cluster_dom.find('a').text('Add Object');
+			}
+		}
+	
+	
+	
+		/* SET UP MODAL */
+		
+		jQuery('#user-cluster-modal').dialog({
+				autoOpen: false,
+				height: 300,
+				width: 350,
+				modal: true,
+				open: function(event, ui) { 
+				
+					/* STYLE CLUSTERS ON OPEN */
+					var new_object_id = jQuery(this).find('input#object_id').val();
+					
+					//loop all existing cluster of user and style them
+					jQuery('li.user-cluster').each( function() {
+						
+						check_cluster_for_objectid_and_style( jQuery(this), new_object_id );
+						
+					});
+										
+				}
+		});
+	
+		/* ADD TO CLUSTER KLICK ON THUMB SCRIPTS */
+		
+		jQuery('a[href=#add-to-cluster]').live('click', function(e) {
+			
+			//store object id for reference
+			var object_id = jQuery(this).parents('.thumb-dr_object').attr('id');
+			jQuery('#user-cluster-modal').find('input#object_id').val(object_id);
+									
+			//open jquery dialog						
+			jQuery('#user-cluster-modal').dialog('open');
+			
+			//style cluster
+			
+			return false;
+		});
+		
+		
+		/* NEW CLUSTER */
+		
+		jQuery('form#cluster-create').submit( function(){
+		
+			// object to append
+			var new_object_id = jQuery('#user-cluster-modal').find('input#object_id').val();
+			
+			// cluster title
+			var new_cluster_title = jQuery(this).find('input#new_cluster_title').val();
+			
+			// ajax new cluster and append
+			jQuery.post(
+			    dr_ajax.ajaxurl,
+			    {
+			        action : 'dr_ajax_new_cluster_and_append_object',
+			        new_object_id : new_object_id,
+			        new_cluster_title : new_cluster_title
+			    },
+			    function( response ) {
+			        if( response.success ){
+			        	
+			        	// extend dom with new list item
+			        	var new_li = jQuery('<li id="' + response.cluster_id + '" class="user-cluster"><input type="hidden" name="cluster-'+response.cluster_id+'-objects" value="'+new_object_id+'" id="object_ids"><h3>'+new_cluster_title+'</h3><span>1</span>included objects<a href="#affect">include object</a></li>');
+								
+			        	jQuery('#user-cluster-modal').find('ul').prepend(new_li);
+			        				        	
+			        	check_cluster_for_objectid_and_style( new_li, new_object_id );
+			        }
+			    }
+			);
+			
+			
+			return false;
+		});
+		
+		
+		/* CLICK ON EXISTING CLUSTER FOR ADDING */
+		
+		jQuery('a[href=#affect]').live('click', function(e) {
+			
+			var cluster_id = jQuery(this).parents('.user-cluster').attr('id');
+			var new_object_id = jQuery('#user-cluster-modal').find('input#object_id').val();
+			var included_object_ids = jQuery(this).parents('.user-cluster').find('input#object_ids').val().split(',');
+			var cluster_dom = jQuery(this).parents('.user-cluster');
+									
+			// AJAX
+			
+			var action = "";
+			
+			if( jQuery.inArray(new_object_id, included_object_ids) > -1 )
+				action = 'dr_ajax_remove_object_from_cluster';
+			else
+				action = 'dr_ajax_add_object_to_cluster';
+			
+			jQuery.post(
+			    dr_ajax.ajaxurl,
+			    {
+			        action : action,
+			        new_object_id : new_object_id,
+			        cluster_id : cluster_id
+			    },
+			    function( response ) {
+			        if( response.success ){
+			        	cluster_dom.find('input#object_ids').val( response.object_ids );
+			        	check_cluster_for_objectid_and_style( cluster_dom, new_object_id );
+			        }
+			    }
+			);
+
+			return false;
+		});
+	
+	});
+	
+</script>
+
+	
+<?php get_footer(); ?>

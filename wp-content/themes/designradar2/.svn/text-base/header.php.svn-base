@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html <?php language_attributes(); ?>>
+<head>
+    <meta charset="<?php bloginfo( 'charset' ); ?>">
+
+    <title><?php wp_title( '/', true, 'right' ); ?>Designradar</title>
+    
+    <link rel="stylesheet" type="text/css" href="<?php bloginfo('template_directory'); ?>/style.css">
+    <link rel="stylesheet/less" type="text/css" href="<?php bloginfo('template_directory'); ?>/css/styles.less">
+        
+    <?php wp_head();?>
+	
+</head>
+<body>
+
+<pre>
+	<?php //print_r($wp_query); ?>
+</pre>
+
+   <div id="wrapper" class="clearfix">
+   	
+   		<div id="header">
+   			LOGO
+   			
+   			<ul>
+   				<li><a href="<?php bloginfo('wpurl'); ?>/objects">Objects</a></li>
+   				<li><a href="<?php bloginfo('wpurl'); ?>/cluster">Cluster</a></li>
+   				<li><a href="<?php bloginfo('wpurl'); ?>/myradar">MyRadar</a></li>
+   			</ul>
+   		</div>
+   
+   		<div id="main">

@@ -1,0 +1,200 @@
+<?php
+		/* INIT SCRIPTS */
+		
+		function dr_new_object_scripts(){
+			wp_enqueue_script('jquery-uploadify');
+			wp_enqueue_script('suggest');
+			wp_enqueue_script('jquery-ui-dialog');
+		}
+		add_action('wp_enqueue_scripts', 'dr_new_object_scripts');
+		
+		
+ 		get_header();
+
+?>
+
+<div class="breadcrumb">
+	<h2>MY RADAR > NEW OBJECT</h2>
+</div>
+
+<div class="grid6">
+
+	<div id="image-upload-shizzle">
+		
+		<h1>Image Upload</h1>
+		
+		<img src="blank.png" id="object_image" style="width: 100%">
+		
+		<input id="file_upload" type="file" name="file_upload" />
+	
+	</div><!-- image-upload-shizzle -->
+	
+	<div id="basic-data">
+		
+		<h1>Basic Data</h1>
+		
+		<p>
+		<label for="object_title">Titel:</label>
+		<input type="text" name="object_title" id="object_title" value="">
+		</p>
+		
+		<p>
+		<label for="object_dr_designers">Designer:</label>
+		<input type="text" name="object_dr_designers" id="object_dr_designers" value="">
+		<a href="#glossary" rel="dr_designers" title="Glossary for designers">Glossary</a>
+		</p>
+		
+		<p>
+		<label for="object_year">Jahr:</label>
+		<input type="text" name="object_year" id="object_year" value="">
+		</p>
+
+		<p>
+		<label for="object_format">Format:</label>
+		<div id="dr_format">
+			<input type="radio" id="sketch" name="dr_format" value="sketch"/><label for="sketch">Sketch</label>
+			<input type="radio" id="oneoff" name="dr_format" value="oneoff"/><label for="oneoff">One-Off</label>
+			<input type="radio" id="series" name="dr_format" value="series"/><label for="series">Series</label>
+		</div>
+		</p>
+		
+		<p>
+		<label for="object_dr_manufactors">Hersteller:</label>
+		<input type="text" name="object_dr_manufactors" id="object_dr_manufactors" value="">
+		<a href="#glossary" rel="dr_manufactors" title="Glossary for manufactors">Glossary</a>
+		</p>
+
+	</div><!-- basic-data -->
+	
+	
+	<div id="apperance">
+	
+		<h1>Gattung</h1>
+		
+		<label for="object_dr_type">Objektgattung:</label>
+		<input type="text" name="object_dr_type" id="object_dr_type" value="">
+		<a href="#glossary" rel="dr_type" title="Glossary for object type">Glossary</a>
+
+		
+		<h1>Materialeigenschaften</h1>
+				
+		<label for="object_dr_material_properties">Materialeigenschaften:</label>
+		<input type="text" name="object_dr_material_properties" id="object_dr_material_properties" value="">
+		<a href="#glossary" rel="dr_material_properties" title="Glossary for material properties">Glossary</a>
+		
+		<button>Farbtag</button>
+		
+		<h1>Assoziative Tags</h1>
+		
+		<label for="object_dr_tags">Tags:</label>
+		<input type="text" name="object_dr_tags" id="object_dr_tags" value="">
+	
+	</div><!-- apperance -->
+	
+	<div id="differentiale">
+		
+		<h1>Differentiale</h1>
+		
+		<p>Hier kommen die differentiale</p>
+	
+	</div><!-- apperance -->
+	
+	<div id="glossary">
+		<div id="glossary-nav">
+		A B C D … Z
+		</div>
+		<div id="glossary-index">
+		</div>
+	</div>
+
+</div>
+
+
+<script type="text/javascript">
+			jQuery(document).ready(function() { 
+			
+				// FILE UPLOADER
+				jQuery('#file_upload').uploadify({
+				  	'uploader'		: uploadify.path + 'uploadify.swf',
+				  	'script'    	: uploadify.path + 'uploadify.php',
+					'folder'    	: uploadify.uploads + '/tmp/',
+					'auto'			: true,
+					onComplete		: function(event, queueID, fileObj, response, data){
+										jQuery('#object_image').attr('src', response);	
+									}
+				});
+				
+				
+				// SUGGESTS
+		    	jQuery('input#object_dr_designers').suggest("<?php echo get_bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php?action=ajax-tag-search&tax=dr_designers", { multiple:true, multipleSep: ", "});
+		    	jQuery('input#object_dr_manufactors').suggest("<?php echo get_bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php?action=ajax-tag-search&tax=dr_manufactors", {multiple:true, multipleSep: ", "});
+		    	jQuery('input#object_dr_type').suggest("<?php echo get_bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php?action=ajax-tag-search&tax=dr_type", {multiple:true, multipleSep: ", "});
+		    	jQuery('input#object_dr_material_properties').suggest("<?php echo get_bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php?action=ajax-tag-search&tax=dr_material_properties", {multiple:true, multipleSep: ", "});
+		    	jQuery('input#object_dr_tags').suggest("<?php echo get_bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php?action=ajax-tag-search&tax=dr_tags", {multiple:true, multipleSep: ", "});	
+		    	
+		    	// BUTTONS
+				jQuery( "#dr_format" ).buttonset();	
+				
+				// MODALS (GLOSSARY)
+				jQuery('#glossary').dialog({
+					autoOpen: false,
+					height: 300,
+					width: 350,
+					modal: true
+				});
+		
+				jQuery('a[href=#glossary]').click( function() {
+					
+					// get taxonomy
+					var tax = jQuery(this).attr('rel');
+					var title = jQuery(this).attr('title');
+											
+					//open jquery dialog	
+					jQuery('#glossary').bind( 'dialogopen', function(event, ui){
+												
+													//set the title
+													jQuery(this).dialog('option', 'title', title );
+													
+													//set a hidden reference to the taxonomy
+													jQuery('#glossary-index').attr('tax', tax);
+												
+													jQuery.post(
+													    dr_ajax.ajaxurl,
+													    {
+													        action : 'dr_ajax_glossary',
+													        tax: tax
+													    },
+													    function( response ) {
+													        jQuery('#glossary-index').html(response);
+													    }
+													);
+												
+					});
+										
+					jQuery('#glossary').dialog('open');
+					
+					return false;
+				});	 
+				
+				// link glossary results to tag input
+				
+				jQuery('#glossary-index').find('a').live( 'click', function(){
+					
+					// grab tax
+					var tax = jQuery('#glossary-index').attr('tax');
+										
+					// clicked tag
+					var tag = jQuery(this).text();
+					
+					// append them to appropriate input field
+					var current = jQuery("#object_"+tax).val();
+					
+					jQuery("#object_"+tax).val(current + tag + ", ");
+					
+					return false;
+				});
+			
+			});
+		</script>
+
+<?php get_footer(); ?>

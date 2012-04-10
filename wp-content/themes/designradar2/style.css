@@ -1,0 +1,18 @@
+/*
+Theme Name: Designradar2
+Theme URI: http://designradar.net
+Version: 1.0
+Author: Supernodegree
+Author URI: http://supernodegree.com
+*/
+
+@import "css/reset.css";
+@import "css/typography.css";
+@import "css/grid.css";
+
+
+/* DIRTY LITTLE HELPERS */
+.clearfix:after{content:".";display:block;height:0;font-size:0;clear:both;visibility:hidden;}
+.clearfix{display:inline-block;}
+* html .clearfix{height:1px;}
+.clearfix{display:block;}
