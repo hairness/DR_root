@@ -1,8 +1,22 @@
 <?php
+		if( isset($_POST['action']) == 'new' ){
+			// process data and create new post
+			include_once('myradar-new-process.php');
+			//
+			// $object_id = nnn; //set in included -process.php
+			
+			// next action will be update
+			$action = 'update';
+		} 
+		else {
+			// action isnt set == first time view of this page
+			$action = 'new';
+		}
+		
+
 		/* INIT VARS */
 		
 		$current_page_url = "http://localhost:8888" . $_SERVER["REQUEST_URI"];
-		$post_status = isset($_POST['post_status']) ? $_POST['post_status'] : ""; 
 		
 		/* INIT SCRIPTS */
 		
@@ -24,8 +38,7 @@
 <h2>Neues Objekt einpflegen</h2>
 
 <form action="<?php echo $current_page_url; ?>" method="post">
-
-	<input type="hidden" name="post_status" value="<?php echo $post_status; ?>">
+<input type="hidden" name="action" value="<?php echo $action; ?>">
 
 <div class="grid6 first new-object-form" style="">
 
@@ -64,9 +77,9 @@
 				<label for="object_format">Format</label>
 			</p>
 			<div id="dr_format" style="margin-bottom: 4px;">
-				<input type="radio" id="sketch" name="dr_format" value="sketch"/><label for="sketch">Sketch</label>
-				<input type="radio" id="oneoff" name="dr_format" value="oneoff"/><label for="oneoff">One-Off</label>
-				<input type="radio" id="series" name="dr_format" value="series"/><label for="series">Series</label>
+				<input type="radio" id="sketch" name="dr_format" value="0" checked="true"/><label for="sketch">Sketch</label>
+				<input type="radio" id="oneoff" name="dr_format" value="1"/><label for="oneoff">One-Off</label>
+				<input type="radio" id="series" name="dr_format" value="2"/><label for="series">Series</label>
 			</div>		
 		</div>
 		
@@ -121,6 +134,17 @@
 		<h3>Assoziative Tags</h3>
 		
 		<textarea rows="1" name="object_dr_tags" id="object_dr_tags" style="width: 472px !important"></textarea>
+	
+	</div><!-- apperance -->
+	
+	<div id="information">
+	
+		<h3>Informationen</h3>
+		
+		<textarea rows="4" name="object_information" id="object_information" style="width: 472px !important"></textarea>
+		
+		<label for="object_link">URL</label>
+		<input type="text" name="object_link" id="object_link" value="http://">
 	
 	</div><!-- apperance -->
 			

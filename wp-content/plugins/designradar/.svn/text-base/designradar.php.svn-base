@@ -39,7 +39,7 @@ License: Free
 	add_action('wp_enqueue_scripts', 'dr_scripts');
 	
 	function dr_styles(){
-		wp_enqueue_style('jquery-ui-base', plugin_dir_url(__FILE__) . "css/jquery-ui.css");
+		wp_enqueue_style('jquery-ui-base', plugin_dir_url(__FILE__) . "css/smoothness/jquery-ui-1.8.18.custom.css");
 	
 	}
 	add_action('wp_enqueue_scripts', 'dr_styles');
