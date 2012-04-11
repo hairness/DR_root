@@ -1,10 +1,30 @@
 <?php
+		if( isset($_POST['action']) == 'new' ){
+			// process data and create new post
+			include_once('myradar-new-process.php');
+			
+			// next action will be update
+			$action = 'update';
+		} 
+		else {
+			// action isnt set == first time view of this page
+			$action = 'new';
+		}
+		
+
+		/* INIT VARS */
+		
+		$current_page_url = "http://localhost:8888" . $_SERVER["REQUEST_URI"];
+		
 		/* INIT SCRIPTS */
 		
 		function dr_new_object_scripts(){
+			wp_enqueue_script('textext', get_bloginfo('template_directory') . '/js/textext.js', array('jquery'));
 			wp_enqueue_script('jquery-uploadify');
 			wp_enqueue_script('suggest');
 			wp_enqueue_script('jquery-ui-dialog');
+			wp_enqueue_script('farbtastic-fix', admin_url() . '/js/farbtastic.js');
+			wp_enqueue_style('farbtastic');
 		}
 		add_action('wp_enqueue_scripts', 'dr_new_object_scripts');
 		
@@ -13,102 +33,146 @@
 
 ?>
 
-<div class="breadcrumb">
-	<h2>MY RADAR > NEW OBJECT</h2>
-</div>
+<h2>Neues Objekt einpflegen</h2>
 
-<div class="grid6">
+<form action="<?php echo $current_page_url; ?>" method="post">
+<input type="hidden" name="action" value="<?php echo $action; ?>">
+
+<div class="grid6 first new-object-form" style="">
 
 	<div id="image-upload-shizzle">
 		
-		<h1>Image Upload</h1>
+		<h3>Bilder Upload</h3>
 		
-		<img src="blank.png" id="object_image" style="width: 100%">
+		<div id="image-stage">
+			<img src="<?php bloginfo('template_directory'); ?>/images/blank.png" id="object_image">
+		</div>
+		
+		<input type="hidden" name="object_image_url" id="object_image_url">
 		
 		<input id="file_upload" type="file" name="file_upload" />
-	
+		<button>Thumbnail definieren</button>
+		
 	</div><!-- image-upload-shizzle -->
 	
 	<div id="basic-data">
 		
-		<h1>Basic Data</h1>
+		<h3>Basisdaten</h3>
 		
 		<p>
-		<label for="object_title">Titel:</label>
-		<input type="text" name="object_title" id="object_title" value="">
-		</p>
-		
-		<p>
-		<label for="object_dr_designers">Designer:</label>
-		<input type="text" name="object_dr_designers" id="object_dr_designers" value="">
-		<a href="#glossary" rel="dr_designers" title="Glossary for designers">Glossary</a>
-		</p>
-		
-		<p>
-		<label for="object_year">Jahr:</label>
-		<input type="text" name="object_year" id="object_year" value="">
+			<input type="text" name="object_title" id="object_title" value="Objekttitel">
 		</p>
 
-		<p>
-		<label for="object_format">Format:</label>
-		<div id="dr_format">
-			<input type="radio" id="sketch" name="dr_format" value="sketch"/><label for="sketch">Sketch</label>
-			<input type="radio" id="oneoff" name="dr_format" value="oneoff"/><label for="oneoff">One-Off</label>
-			<input type="radio" id="series" name="dr_format" value="series"/><label for="series">Series</label>
+		<div class="grid3 first">
+			<p>
+				<label for="object_year">Jahr</label>
+				<input type="text" name="object_year" id="object_year" value="YYYY" style="width: 110px !important; text-align: center">
+			</p>		
 		</div>
-		</p>
 		
-		<p>
-		<label for="object_dr_manufactors">Hersteller:</label>
-		<input type="text" name="object_dr_manufactors" id="object_dr_manufactors" value="">
-		<a href="#glossary" rel="dr_manufactors" title="Glossary for manufactors">Glossary</a>
-		</p>
+		<div class="grid3">
+			<p style="margin-bottom: 0;">
+				<label for="object_format">Format</label>
+			</p>
+			<div id="dr_format" style="margin-bottom: 4px;">
+				<input type="radio" id="sketch" name="dr_format" value="0" checked="true"/><label for="sketch">Sketch</label>
+				<input type="radio" id="oneoff" name="dr_format" value="1"/><label for="oneoff">One-Off</label>
+				<input type="radio" id="series" name="dr_format" value="2"/><label for="series">Series</label>
+			</div>		
+		</div>
+		
+		<div class="grid6 first">			
+			<div class="grid3 first">	
+				<p>
+					<label for="object_dr_designers">Designer</label>
+					<textarea rows="1" name="object_dr_designers" id="object_dr_designers" style="width: 200px;"></textarea>
+					<a href="#glossary" rel="dr_designers" title="Designerkatalog">Katalog</a>
+				</p>
+			</div>
+			
+			<div class="grid3">		
+				<p>
+					<label for="object_dr_manufactors">Hersteller</label>
+					<textarea rows="1" name="object_dr_manufactors" id="object_dr_manufactors"></textarea>
+					<a href="#glossary" rel="dr_manufactors" title="Herstellerkatalog">Katalog</a>
+				</p>
+			</div>
+		</div>
+
+		
 
 	</div><!-- basic-data -->
 	
 	
 	<div id="apperance">
 	
-		<h1>Gattung</h1>
+		<h3>Objekterscheinung</h3>
 		
-		<label for="object_dr_type">Objektgattung:</label>
-		<input type="text" name="object_dr_type" id="object_dr_type" value="">
-		<a href="#glossary" rel="dr_type" title="Glossary for object type">Glossary</a>
-
+		<div class="grid3 first">
+			<p>
+				<label for="object_dr_type">Gattung / Typ</label>
+				<textarea rows="1" name="object_dr_type" id="object_dr_type"></textarea>
+				<a href="#glossary" rel="dr_type" title="Objektgattungen Katalog">Katalog</a>
+			</p>
+		</div>
 		
-		<h1>Materialeigenschaften</h1>
-				
-		<label for="object_dr_material_properties">Materialeigenschaften:</label>
-		<input type="text" name="object_dr_material_properties" id="object_dr_material_properties" value="">
-		<a href="#glossary" rel="dr_material_properties" title="Glossary for material properties">Glossary</a>
+		<div class="grid3">
+			<p>
+				<label for="object_dr_material_properties">Materialeigenschaften</label>
+				<textarea rows="1" name="object_dr_material_properties" id="object_dr_material_properties"></textarea>
+				<a href="#glossary" rel="dr_material_properties" title="Materialeigenschaften Katalog">Katalog</a>		
+				<a href="#add-color" id="open-color-modal" style="float: right">Farbe definieren</a>
+			</p>	
+		</div>
 		
-		<button>Farbtag</button>
+	</div>	
+					
+	<div id="association">
+	
+		<h3>Assoziative Tags</h3>
 		
-		<h1>Assoziative Tags</h1>
-		
-		<label for="object_dr_tags">Tags:</label>
-		<input type="text" name="object_dr_tags" id="object_dr_tags" value="">
+		<textarea rows="1" name="object_dr_tags" id="object_dr_tags" style="width: 472px !important"></textarea>
 	
 	</div><!-- apperance -->
 	
-	<div id="differentiale">
+	<div id="information">
+	
+		<h3>Informationen</h3>
 		
-		<h1>Differentiale</h1>
+		<textarea rows="4" name="object_information" id="object_information" style="width: 472px !important"></textarea>
 		
-		<p>Hier kommen die differentiale</p>
+		<label for="object_link">URL</label>
+		<input type="text" name="object_link" id="object_link" value="http://">
 	
 	</div><!-- apperance -->
+			
+	<?php get_template_part('myradar-new', 'differentials'); ?>
 	
-	<div id="glossary">
-		<div id="glossary-nav">
-		A B C D … Z
-		</div>
-		<div id="glossary-index">
-		</div>
-	</div>
+	<input type="submit" value="Save Draft">
+	
+</form>	
 
 </div>
 
+<?php // **** MODALS *** ?>
+
+<div id="glossary">
+	<div id="glossary-nav">
+	A B C D … Z
+	</div>
+	<div id="glossary-index">
+	</div>
+</div>
+
+<div id="colors">
+	<form>
+		<input type="text" id="color" name="color" value="#123456" />
+	</form>
+		<div id="colorpicker"></div>
+		<button id="add-color-tag">Add Color Tag</button>
+</div>
+
+<?php // **** MODALS ENDE *** ?>
 
 <script type="text/javascript">
 			jQuery(document).ready(function() { 
@@ -121,21 +185,112 @@
 					'auto'			: true,
 					onComplete		: function(event, queueID, fileObj, response, data){
 										jQuery('#object_image').attr('src', response);	
+										jQuery('#object_image_url').val(response);	 
 									}
 				});
 				
 				
 				// SUGGESTS
-		    	jQuery('input#object_dr_designers').suggest("<?php echo get_bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php?action=ajax-tag-search&tax=dr_designers", { multiple:true, multipleSep: ", "});
-		    	jQuery('input#object_dr_manufactors').suggest("<?php echo get_bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php?action=ajax-tag-search&tax=dr_manufactors", {multiple:true, multipleSep: ", "});
-		    	jQuery('input#object_dr_type').suggest("<?php echo get_bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php?action=ajax-tag-search&tax=dr_type", {multiple:true, multipleSep: ", "});
-		    	jQuery('input#object_dr_material_properties').suggest("<?php echo get_bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php?action=ajax-tag-search&tax=dr_material_properties", {multiple:true, multipleSep: ", "});
-		    	jQuery('input#object_dr_tags').suggest("<?php echo get_bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php?action=ajax-tag-search&tax=dr_tags", {multiple:true, multipleSep: ", "});	
+		    	jQuery('#object_dr_designers').textext({
+			        plugins : 'tags prompt autocomplete ajax',
+			        prompt : 'Add one...',
+			        ajax : {
+			            url : '<?php echo get_bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php?action=dr_ajax_tag_search&tax=dr_designers',
+			            dataType : 'json',
+			            cacheResults : true
+			        },
+			        html: {
+		                tag: '<div class="text-tag designer-tag"><div class="text-button"><span class="text-label"/><a class="text-remove"/></div></div>'
+		            }
+			    });
+
+		    	jQuery('#object_dr_manufactors').textext({
+			        plugins : 'tags prompt autocomplete ajax',
+			        prompt : 'Add one...',
+			        ajax : {
+			            url : '<?php echo get_bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php?action=dr_ajax_tag_search&tax=dr_manufactors',
+			            dataType : 'json',
+			            cacheResults : true
+			        }
+			    });
+
+		    	jQuery('#object_dr_type').textext({
+			        plugins : 'tags prompt autocomplete ajax',
+			        prompt : 'Add one...',
+			        ajax : {
+			            url : '<?php echo get_bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php?action=dr_ajax_tag_search&tax=dr_type',
+			            dataType : 'json',
+			            cacheResults : true
+			        }
+			    });
+
+				jQuery('#object_dr_material_properties').textext({
+			        plugins : 'tags prompt autocomplete ajax',
+			        prompt : 'Add one...',
+			        ajax : {
+			            url : '<?php echo get_bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php?action=dr_ajax_tag_search&tax=dr_material_properties',
+			            dataType : 'json',
+			            cacheResults : true
+			        }
+			    });
+		    	
+		    	jQuery('#object_dr_tags').textext({
+			        plugins : 'tags prompt autocomplete ajax',
+			        prompt : 'Add one...',
+			        ajax : {
+			            url : '<?php echo get_bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php?action=dr_ajax_tag_search&tax=dr_tags',
+			            dataType : 'json',
+			            cacheResults : true
+			        }
+			    });
+	
 		    	
 		    	// BUTTONS
 				jQuery( "#dr_format" ).buttonset();	
 				
-				// MODALS (GLOSSARY)
+				// MODALS 
+				
+				// (COLORS)
+				jQuery('#colors').dialog({
+					autoOpen: false,
+					height: 320,
+					width: 250,
+					modal: true
+				});
+				
+     			jQuery('#colorpicker').farbtastic('#color');
+   				
+   				jQuery('a[href=#add-color]').click( function() {
+					jQuery('#colors').dialog('open');
+					return false;
+				});
+				
+				// HELPER
+				jQuery.extend(jQuery.expr[":"], { "startWith": function(elem, i, match, array) { return (elem.textContent || elem.innerText || "").toLowerCase ().indexOf((match[3] || "").toLowerCase()) == 0; } });
+
+				
+				//inside the modal
+				jQuery('button#add-color-tag').click( function() {
+					var color = jQuery('input#color').val();
+					var input = jQuery("textarea#object_dr_material_properties");
+					
+        			input.textext()[0].tags().addTags( [color] );
+        			
+        			jQuery('div.text-tags').find('span:startWith("#")').each( function(){
+        				var color = jQuery(this).html();
+        				
+        				//empty
+        				jQuery(this).html("");
+        				
+        				jQuery(this).parents('.text-button').css('background', color);
+        				jQuery(this).parents('.text-button').css('width', '60px');
+        			});
+        			      					
+					return false;
+				});
+				
+				
+				// (GLOSSARY)
 				jQuery('#glossary').dialog({
 					autoOpen: false,
 					height: 300,
@@ -157,6 +312,9 @@
 													
 													//set a hidden reference to the taxonomy
 													jQuery('#glossary-index').attr('tax', tax);
+													
+													//empty div and add loading bg
+													jQuery('#glossary-index').html('').css('height', '100%').css('background', 'url(<?php bloginfo('template_directory'); ?>/images/ajax-loader.gif)');
 												
 													jQuery.post(
 													    dr_ajax.ajaxurl,
@@ -165,7 +323,10 @@
 													        tax: tax
 													    },
 													    function( response ) {
+													    	//render content
 													        jQuery('#glossary-index').html(response);
+													        //remove loading bg
+													        jQuery('#glossary-index').css('background', 'none');
 													    }
 													);
 												
@@ -186,11 +347,11 @@
 					// clicked tag
 					var tag = jQuery(this).text();
 					
-					// append them to appropriate input field
-					var current = jQuery("#object_"+tax).val();
+					// input field
+					var input = jQuery("#object_"+tax);
 					
-					jQuery("#object_"+tax).val(current + tag + ", ");
-					
+					input.textext()[0].tags().addTags( [tag] );
+										
 					return false;
 				});
 			

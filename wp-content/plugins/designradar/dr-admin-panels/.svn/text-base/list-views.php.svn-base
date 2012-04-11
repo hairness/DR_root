@@ -32,13 +32,13 @@ function dr_object_custom_columns($column){
  
   switch ($column) {
   	case "image":
-  		echo get_the_post_thumbnail($post_id, array(100,72));
+  		echo get_the_post_thumbnail($post_id, array(100,72) );
   	break;
     case "appearance":
-      if(isset($custom["appearance"][0])){
-	      if($custom["appearance"][0]==0) echo "Sketch";
-	      if($custom["appearance"][0]==1) echo "One-Off";
-	      if($custom["appearance"][0]==2) echo "Series";
+      if(isset($custom["format"][0])){
+	      if($custom["format"][0]==0) echo "Sketch";
+	      if($custom["format"][0]==1) echo "One-Off";
+	      if($custom["format"][0]==2) echo "Series";
       }
       break;
     case "year":
