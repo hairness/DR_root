@@ -28,7 +28,7 @@
 																		
 		register_taxonomy( 'dr_type', array("dr_object"), array(
 																		
-																		"hierarchical" => true, 
+																		"hierarchical" => false, 
 																		"label" => "Type of object", 
 																		"singular_label" => "Type of object", 
 																		"rewrite" => array('slug' => 'type')));																

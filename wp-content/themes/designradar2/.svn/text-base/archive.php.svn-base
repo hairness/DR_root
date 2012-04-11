@@ -87,9 +87,7 @@ get_header();
 <div id="user-cluster-modal" style="background: white;">
 
 	<style>
-	
-		li { border-bottom: 2px solid green; }
-		
+			
 		li.includes-object { background: #f000c3; }
 	
 	</style>

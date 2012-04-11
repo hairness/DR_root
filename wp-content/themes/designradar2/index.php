@@ -2,8 +2,6 @@
 
 	/* INDEX:PHP */
 	
-	/*hans penis ist klein*/
-	
 	get_header(); 
 ?>
 

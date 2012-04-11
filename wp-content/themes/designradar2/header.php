@@ -13,8 +13,6 @@
 </head>
 <body>
 
-<h1>DICKFOTZ!</h1>
-
 	<div id="head_wrapper" class="clearfix">
 		<div id="header">
    			<div id="logo" class="grid3 first">
